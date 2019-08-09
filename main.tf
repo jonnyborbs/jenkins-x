@@ -11,33 +11,29 @@ terraform {
 }
 
 
-variable "region" {
-}
-
-variable "subnets" {
-    type = "list"
-}
-
-variable "vpc_id" {
-}
-
-variable "key_name" {
-    description = "SSH key name for worker nodes"
-}
-
 variable "bucket_domain" {
     description = "Suffix for S3 bucket used for vault unseal operation"
 }
 
 provider "aws" {
-    region  = "${var.region}"
+    region = "${var.aws_region}"
+}
+
+resource "aws_vpc" "default" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "default" {
+  vpc_id                  = "${aws_vpc.default.id}"
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
 }
 
 module "eks" {
     source       = "terraform-aws-modules/eks/aws"
-    cluster_name = "${var.region}"
-    subnets      = "${var.subnets}"
-    vpc_id       = "${var.vpc_id}"
+    cluster_name = "${var.aws_region}"
+    subnets      = "${aws_subnet.default.id}"
+    vpc_id       = "${aws_vpc.default.id}"
     worker_groups = [
         {
             autoscaling_enabled   = true
@@ -45,7 +41,7 @@ module "eks" {
             asg_desired_capacity  = 3
             instance_type         = "t3.large"
             asg_max_size          = 20
-            key_name              = "${var.key_name}"
+            key_name              = "${var.key_pair_name}"
         }
     ]
     version = "5.0.0"
@@ -59,7 +55,7 @@ resource "aws_iam_role_policy_attachment" "workers_AmazonEC2ContainerRegistryPow
 
 # Create S3 bucket for KMS
 resource "aws_s3_bucket" "vault-unseal" {
-    bucket = "vault-unseal.${var.region}.${var.bucket_domain}"
+    bucket = "vault-unseal.${var.aws_region}.${var.bucket_domain}"
     acl    = "private"
 
     versioning {
@@ -92,7 +88,7 @@ resource "aws_dynamodb_table" "vault-data" {
 
 # Create service account for vault. Should the policy
 resource "aws_iam_user" "vault" {
-  name = "vault_${var.region}"
+  name = "vault_${var.aws_region}"
 }
 
 data "aws_iam_policy_document" "vault" {
@@ -150,7 +146,7 @@ data "aws_iam_policy_document" "vault" {
 }
 
 resource "aws_iam_user_policy" "vault" {
-    name = "vault_${var.region}"
+    name = "vault_${var.aws_region}"
     user = "${aws_iam_user.vault.name}"
 
     policy = "${data.aws_iam_policy_document.vault.json}"
@@ -162,5 +158,5 @@ resource "aws_iam_access_key" "vault" {
 
 # Output KMS key id, S3 bucket name and secret name in the form of jx install options
 output "jx_params" {
-    value = "--provider=eks --gitops --no-tiller --vault --aws-dynamodb-region=${var.region} --aws-dynamodb-table=${aws_dynamodb_table.vault-data.name} --aws-kms-region=${var.region} --aws-kms-key-id=${aws_kms_key.bank_vault.key_id} --aws-s3-region=${var.region}  --aws-s3-bucket=${aws_s3_bucket.vault-unseal.id} --aws-access-key-id=${aws_iam_access_key.vault.id} --aws-secret-access-key=${aws_iam_access_key.vault.secret}"
+    value = "--provider=eks --gitops --no-tiller --vault --aws-dynamodb-region=${var.aws_region} --aws-dynamodb-table=${aws_dynamodb_table.vault-data.name} --aws-kms-region=${var.aws_region} --aws-kms-key-id=${aws_kms_key.bank_vault.key_id} --aws-s3-region=${var.aws_region}  --aws-s3-bucket=${aws_s3_bucket.vault-unseal.id} --aws-access-key-id=${aws_iam_access_key.vault.id} --aws-secret-access-key=${aws_iam_access_key.vault.secret}"
 }

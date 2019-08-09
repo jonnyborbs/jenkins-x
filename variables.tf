@@ -14,12 +14,3 @@ variable "aws_region" {
   description = "AWS region to launch servers."
   default     = "us-east-1"
 }
-
-variable "slack_topic_name" {
-  description = "Slack topic name"
-  default     = "slack-topic"
-}
-
-variable "slack_webhook_url" {
-  description = "Slack webhook URL"
-}
