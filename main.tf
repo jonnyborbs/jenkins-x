@@ -12,7 +12,7 @@ terraform {
 
 
 variable "bucket_domain" {
-    description = "Suffix for S3 bucket used for vault unseal operation"
+    description = "Suffix for S3 bucket used for vault unseal operation:"
 }
 
 provider "aws" {
