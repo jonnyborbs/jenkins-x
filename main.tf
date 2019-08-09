@@ -10,11 +10,6 @@ terraform {
   }
 }
 
-
-variable "bucket_domain" {
-    description = "Suffix for S3 bucket used for vault unseal operation:"
-}
-
 provider "aws" {
     region = "${var.aws_region}"
 }
