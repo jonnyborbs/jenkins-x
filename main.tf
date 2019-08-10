@@ -24,10 +24,14 @@ resource "aws_subnet" "default" {
   map_public_ip_on_launch = true
 }
 
+data "aws_subnet_ids" "default" {
+  vpc_id = data.aws_vpc.default.id
+}
+
 module "eks" {
     source       = "terraform-aws-modules/eks/aws"
     cluster_name = "${var.aws_region}"
-    subnets      = ["${aws_subnet.default.id}"]
+    subnets      = "${data.aws_subnet_ids.default.ids}"
     vpc_id       = "${aws_vpc.default.id}"
     worker_groups = [
         {
