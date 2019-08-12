@@ -14,22 +14,28 @@ provider "aws" {
     region = "${var.aws_region}"
 }
 
-resource "aws_vpc" "default" {
+resource "aws_vpc" "jenkins-vpc-east" {
   cidr_block = "10.0.0.0/16"
+  availability_zone = "us-east-1a"
+}
+
+resource "aws_vpc" "jenkins-vpc-west" {
+  cidr_block = "10.0.0.0/16"
+  availability_zone = "us-west-1a"
 }
 
 resource "aws_subnet" "jenkins-west" {
-  vpc_id                  = "${aws_vpc.default.id}"
+  vpc_id                  = "${aws_vpc.jenkins-vpc-west.id}"
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "us-west-1"
+  availability_zone       = "us-west-1a"
 }
 
 resource "aws_subnet" "jenkins-east" {
-  vpc_id                  = "${aws_vpc.default.id}"
+  vpc_id                  = "${aws_vpc.jenkins-vpc-east.id}"
   cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-1"
+  availability_zone       = "us-east-1a"
 }
 
 module "eks" {
