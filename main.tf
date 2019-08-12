@@ -18,14 +18,14 @@ resource "aws_vpc" "default" {
   cidr_block = "10.0.0.0/16"
 }
 
-resource "aws_subnet-west" "default" {
+resource "aws_subnet" "jenkins-west" {
   vpc_id                  = "${aws_vpc.default.id}"
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "us-west-1"
 }
 
-resource "aws_subnet-east" "default" {
+resource "aws_subnet" "jenkins-east" {
   vpc_id                  = "${aws_vpc.default.id}"
   cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = true
@@ -35,7 +35,7 @@ resource "aws_subnet-east" "default" {
 module "eks" {
     source       = "terraform-aws-modules/eks/aws"
     cluster_name = "${var.aws_region}"
-    subnets      = "${aws_subnet-west.default.id}. ${aws_subnet-east.default.id}"
+    subnets      = "${aws_subnet.jenkins-east.id}. ${aws_subnet.jenkins-west.id}"
     vpc_id       = "${aws_vpc.default.id}"
     worker_groups = [
         {
