@@ -47,7 +47,7 @@ module "eks" {
             key_name              = "${var.key_pair_name}"
         }
     ]
-    version = "5.0.0"
+    #version = "5.0.0"
 }
 
 # Needed for cluster-autoscaler
