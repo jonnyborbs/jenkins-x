@@ -14,33 +14,29 @@ provider "aws" {
     region = "${var.aws_region}"
 }
 
-resource "aws_vpc" "jenkins-vpc-east" {
+resource "aws_vpc" "jenkins-vpc" {
   cidr_block = "10.0.0.0/16"
 }
 
-resource "aws_vpc" "jenkins-vpc-west" {
-  cidr_block = "10.0.0.0/16"
-}
-
-resource "aws_subnet" "jenkins-west" {
-  vpc_id                  = "${aws_vpc.jenkins-vpc-west.id}"
+resource "aws_subnet" "jenkins-east-1a" {
+  vpc_id                  = "${aws_vpc.jenkins-vpc.id}"
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "us-west-1a"
+  availability_zone       = "us-east-1a"
 }
 
-resource "aws_subnet" "jenkins-east" {
-  vpc_id                  = "${aws_vpc.jenkins-vpc-east.id}"
+resource "aws_subnet" "jenkins-east-1c" {
+  vpc_id                  = "${aws_vpc.jenkins-vpc.id}"
   cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-1a"
+  availability_zone       = "us-east-1c"
 }
 
 module "eks" {
     source       = "terraform-aws-modules/eks/aws"
     cluster_name = "${var.aws_region}"
-    subnets      = ["${aws_subnet.jenkins-east.id}", "${aws_subnet.jenkins-west.id}"]
-    vpc_id       = "${aws_vpc.jenkins-vpc-east.id}"
+    subnets      = ["${aws_subnet.jenkins-east-1a.id}", "${aws_subnet.jenkins-east-1c.id}"]
+    vpc_id       = "${aws_vpc.jenkins-vpc.id}"
     worker_groups = [
         {
             autoscaling_enabled   = true
