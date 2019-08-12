@@ -16,12 +16,10 @@ provider "aws" {
 
 resource "aws_vpc" "jenkins-vpc-east" {
   cidr_block = "10.0.0.0/16"
-  availability_zone = "us-east-1a"
 }
 
 resource "aws_vpc" "jenkins-vpc-west" {
   cidr_block = "10.0.0.0/16"
-  availability_zone = "us-west-1a"
 }
 
 resource "aws_subnet" "jenkins-west" {
