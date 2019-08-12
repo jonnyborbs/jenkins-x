@@ -42,7 +42,7 @@ module "eks" {
             autoscaling_enabled   = true
             asg_min_size          = 3
             asg_desired_capacity  = 3
-            instance_type         = "t3.large"
+            instance_type         = "t3.small"
             asg_max_size          = 20
             key_name              = "${var.key_pair_name}"
         }
