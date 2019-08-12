@@ -35,7 +35,7 @@ resource "aws_subnet" "jenkins-east" {
 module "eks" {
     source       = "terraform-aws-modules/eks/aws"
     cluster_name = "${var.aws_region}"
-    subnets      = "${aws_subnet.jenkins-east.id}. ${aws_subnet.jenkins-west.id}"
+    subnets      = "${aws_subnet.jenkins-east.id}, ${aws_subnet.jenkins-west.id}"
     vpc_id       = "${aws_vpc.default.id}"
     worker_groups = [
         {
