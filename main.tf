@@ -1,15 +1,3 @@
-terraform {
-  backend "remote" {
-    hostname = "app.terraform.io"
-    organization = "jschulman"
-
-    workspaces {
-      name = "jenkins-x"
-
-    }
-  }
-}
-
 provider "aws" {
     region = "${var.aws_region}"
 }
